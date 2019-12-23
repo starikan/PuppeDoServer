@@ -2,15 +2,18 @@ const _ = require('lodash');
 const yaml = require('js-yaml');
 const WebSocket = require('ws');
 
+const { getUniqueID } = require('./helpers');
+const ppd = require('@puppedo/core');
+
 // const { getFullDepthJSON, getDescriptions } = require('./getFullDepthJSON');
 // const { getAllYamls } = require('./yaml2json');
 // const { argParse } = require('./helpers');
 
-// const socketFabric = ({ a = {}, socket, envsIdIn = null, callback = () => {}, method } = {}) => {
+// const socketFabric = ({ args = {}, socket, envsIdIn = null, callback = () => {}, method } = {}) => {
 //   if (!method) {
 //     return callback;
 //   } else {
-//     return async ({ args, socket, envsIdIn }) => {
+//     return async ({ args = args, socket = socket, envsIdIn = envsIdIn } = {}) => {
 //       try {
 //         if (!envsIdIn && method != 'createEnvs') {
 //           throw { message: 'Not activate env' };
@@ -135,18 +138,10 @@ const socketMethods = async ({ args = {}, socket, envsId, method } = {}) => {
   }
 };
 
-const getUniqueID = function() {
-  function s4() {
-    return Math.floor((1 + Math.random()) * 0x10000)
-      .toString(16)
-      .substring(1);
-  }
-  return s4() + s4() + '-' + s4();
-};
+const createSocketServer = ({ host = '127.0.0.1', port = 3001 } = {}) => {
+  const wss = new WebSocket.Server({ host, port });
 
-const createSocketServer = () => {
-  const wss = new WebSocket.Server({ port: 3001 });
-
+  console.log(wss);
   wss.on('connection', ws => {
     console.log(ws, wss);
     ws.id = getUniqueID();
@@ -167,11 +162,13 @@ const createSocketServer = () => {
     ws.onclose = () => {
       console.log('Close');
     };
-    ws.onerror = () => {};
+    ws.onerror = () => {
+      debugger;
+    };
     ws.onopen = () => {};
   });
 
-  console.log('Server run on port 3001');
+  console.log(`Server run on port ${port}`);
 
   return wss;
 };
