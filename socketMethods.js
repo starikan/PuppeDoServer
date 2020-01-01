@@ -130,9 +130,9 @@ const socketEvents = {
 //   }
 // };
 
-const socketMethods = async ({ args = {}, socket, envsId, method } = {}) => {
+const socketMethods = async ({ data = {}, socket, envsId, method } = {}) => {
   if (socketEvents[method]) {
-    await socketEvents[method]({ args, socket, envsIdIn: envsId, method });
+    await socketEvents[method]({ data, socket, envsIdIn: envsId, method });
   } else {
     throw { message: `Can't find method: ${method} in socket server` };
   }
@@ -143,7 +143,7 @@ const createSocketServer = ({ host = '127.0.0.1', port = 3001 } = {}) => {
 
   console.log(wss);
   wss.on('connection', ws => {
-    console.log(ws, wss);
+    console.log(ws);
     ws.id = getUniqueID();
     ws.sendYAML = function(data) {
       return this.send.call(this, yaml.dump(data, { lineWidth: 1000, indent: 2 }));
@@ -152,8 +152,8 @@ const createSocketServer = ({ host = '127.0.0.1', port = 3001 } = {}) => {
     ws.onmessage = async function(event) {
       try {
         const incomeData = JSON.parse(event.data);
-        const { envsId, args, params, method } = incomeData;
-        await socketMethods({ envsId, args, params, socket: this, method });
+        const { envsId, data, method } = incomeData;
+        await socketMethods({ envsId, data, method, socket: this });
       } catch (err) {
         console.log(err);
         //TODO: 2019-06-11 S.Starodubov todo
