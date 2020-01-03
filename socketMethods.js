@@ -13,7 +13,7 @@ const createSocketServer = ({ host = '127.0.0.1', port = 3001 } = {}) => {
     console.log(ws);
     ws.id = getUniqueID();
     ws.sendYAML = function(data) {
-      return this.send.call(this, yaml.dump(data, { lineWidth: 1000, indent: 2 }));
+      return this.send.call(this, yaml.safeDump(data, { lineWidth: 1000, indent: 2, skipInvalid: true }));
     };
 
     ws.onmessage = async function(event) {
@@ -25,7 +25,11 @@ const createSocketServer = ({ host = '127.0.0.1', port = 3001 } = {}) => {
         } else {
           const availableMethods = Object.keys(socketEvents);
           this.sendYAML({
-            data: { message: `Can't find method: "${method}" in socket server. Available methods: ${JSON.stringify(availableMethods)}` },
+            data: {
+              message: `Can't find method: "${method}" in socket server. Available methods: ${JSON.stringify(
+                availableMethods,
+              )}`,
+            },
             type: 'error',
             envsId,
           });

@@ -24,21 +24,24 @@ const socketEvents = {
     socket.sendYAML({ data: testContent, type: method, envsId });
   }),
   createEnvs: socketFabric(async ({ socket, data, envsId, method }) => {
-    const { envsId: envsIdResp, envs } = await new ppd.Environment({ envsId });
-    socket.sendYAML({ data: { envsId: envsIdResp, envs }, type: method, envsId: envsIdResp });
+    let envs;
+    ({ envsId, envs } = await new ppd.Environment({ envsId }));
+    await envs.init();
+    socket.sendYAML({ data: { envsId, envs }, type: method, envsId });
+  }),
+  setCurrentTest: socketFabric(async ({ socket, data, envsId, method }) => {
+    let envs;
+    ({ envsId, envs } = await new ppd.Environment({ envsId }));
+    const { testName } = data;
+
+    envs.set('current.test', testName);
+    envs.initOutput();
+
+    socket.sendYAML({ data: { envsId, envs }, type: method, envsId });
   }),
 };
 
 module.exports = { socketEvents };
-
-// console.log(`TEST '${args.PPD_TESTS[i]}' start on '${dayjs().format('YYYY-MM-DD HH:mm:ss.SSS')}'`);
-
-// const testFile = args.PPD_TESTS[i];
-// const testName = testFile.split('/')[testFile.split('/').length - 1];
-
-// await envs.initOutput(args, testName);
-// await envs.initOutputLatest(args);
-// await envs.init();
 
 // runEnv: socketFabric({
 //   method: 'runEnv',
