@@ -17,7 +17,7 @@
   },
   "homepage": "https://github.com/starikan/PuppeDoServer#readme",
   "dependencies": {
-    "@puppedo/core": "^1.3.3",
+    "@puppedo/core": "^1.3.4",
     "js-yaml": "^3.13.1",
     "lodash": "^4.17.15",
     "ws": "^7.2.1"

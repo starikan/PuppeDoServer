@@ -25,19 +25,29 @@ const socketEvents = {
   }),
   createEnvs: socketFabric(async ({ socket, data, envsId, method }) => {
     let envs;
-    ({ envsId, envs } = await new ppd.Environment({ envsId }));
+    ({ envsId, envs } = await new ppd.Environment({ envsId, socket }));
     await envs.init();
-    socket.sendYAML({ data: { envsId, envs }, type: method, envsId });
+    socket.sendYAML({ data: {  }, type: method, envsId });
   }),
   setCurrentTest: socketFabric(async ({ socket, data, envsId, method }) => {
     let envs;
-    ({ envsId, envs } = await new ppd.Environment({ envsId }));
+    ({ envsId, envs } = await new ppd.Environment({ envsId, socket }));
     const { testName } = data;
 
     envs.set('current.test', testName);
     envs.initOutput();
 
-    socket.sendYAML({ data: { envsId, envs }, type: method, envsId });
+    socket.sendYAML({ data: {  }, type: method, envsId });
+  }),
+  runCurrentTest: socketFabric(async ({ socket, data, envsId, method }) => {
+    const { fullJSON } = ppd.getFullDepthJSON({ envsId });
+    const blocker = new ppd.Blocker();
+    blocker.refresh();
+
+    let test = ppd.getTest(fullJSON, envsId, socket);
+    await test();
+
+    socket.sendYAML({ data: {  }, type: method, envsId });
   }),
 };
 
