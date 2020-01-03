@@ -5,34 +5,32 @@ const WebSocket = require('ws');
 const { getUniqueID } = require('./helpers');
 const ppd = require('@puppedo/core');
 
-// const { getFullDepthJSON, getDescriptions } = require('./getFullDepthJSON');
-// const { getAllYamls } = require('./yaml2json');
-// const { argParse } = require('./helpers');
-
-// const socketFabric = ({ args = {}, socket, envsIdIn = null, callback = () => {}, method } = {}) => {
-//   if (!method) {
-//     return callback;
-//   } else {
-//     return async ({ args = args, socket = socket, envsIdIn = envsIdIn } = {}) => {
-//       try {
-//         if (!envsIdIn && method != 'createEnvs') {
-//           throw { message: 'Not activate env' };
-//         }
-//         args = argParse(args);
-//         let { envsId, envs, log } = require('./env')({ socket, envsId: envsIdIn });
-//         await callback({ envsId, envs, log, args, socket, envsIdIn, method });
-//       } catch (err) {
-//         err.message += ` || error in '${method}'`;
-//         err.socket = socket;
-//         err.envId = envsIdIn;
-//         socket.sendYAML({ data: { message: err.message, stack: err.stack }, type: 'error', envId: envsIdIn });
-//         throw err;
-//       }
-//     };
-//   }
-// };
+const socketFabric = ({ callback = () => {}, method } = {}) => {
+  if (!method) {
+    return callback;
+  } else {
+    return async ({ data, socket, envsIdIn } = {}) => {
+      try {
+        await callback({ envId: envsIdIn, socket, data });
+      } catch (err) {
+        err.message += ` || error in '${method}'`;
+        err.socket = socket;
+        err.envsId = envsIdIn;
+        socket.sendYAML({ data: { message: err.message, stack: err.stack }, type: 'error', envsId: envsIdIn });
+        throw err;
+      }
+    };
+  }
+};
 
 const socketEvents = {
+  argsInit: socketFabric({
+    method: 'argsInit',
+    callback: async ({ socket, data, envsId }) => {
+      const args = new ppd.Arguments().init(data);
+      socket.sendYAML({ data: args, type: 'argsInit', envsId });
+    },
+  }),
   // createEnvs: socketFabric({
   //   method: 'createEnvs',
   //   callback: async ({ socket, args, envsId }) => {
@@ -156,10 +154,12 @@ const createSocketServer = ({ host = '127.0.0.1', port = 3001 } = {}) => {
         await socketMethods({ envsId, data, method, socket: this });
       } catch (err) {
         console.log(err);
+        debugger;
         //TODO: 2019-06-11 S.Starodubov todo
       }
     };
-    ws.onclose = () => {
+    ws.onclose = e => {
+      debugger;
       console.log('Close');
     };
     ws.onerror = () => {
