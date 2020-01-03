@@ -27,8 +27,15 @@ const socketEvents = {
   argsInit: socketFabric({
     method: 'argsInit',
     callback: async ({ socket, data, envsId }) => {
-      const args = new ppd.Arguments().init(data);
+      const args = new ppd.Arguments(data);
       socket.sendYAML({ data: args, type: 'argsInit', envsId });
+    },
+  }),
+  getAllTestsData: socketFabric({
+    method: 'getAllTestsData',
+    callback: async ({ socket, data, envsId }) => {
+      const testContent = await new ppd.TestsContent().getAllData();
+      socket.sendYAML({ data: testContent, type: 'getAllTestsData', envsId });
     },
   }),
   // createEnvs: socketFabric({
@@ -159,7 +166,6 @@ const createSocketServer = ({ host = '127.0.0.1', port = 3001 } = {}) => {
       }
     };
     ws.onclose = e => {
-      debugger;
       console.log('Close');
     };
     ws.onerror = () => {

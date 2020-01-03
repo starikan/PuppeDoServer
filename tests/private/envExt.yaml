@@ -1,0 +1,9 @@
+---
+type: env
+name: envExt
+description: My Secret Env Ext
+
+log:
+  level: raw
+  screenshot: true
+  fullpage: true
