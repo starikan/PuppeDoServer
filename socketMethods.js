@@ -5,14 +5,6 @@ const WebSocket = require('ws');
 const { getUniqueID } = require('./helpers');
 const { socketEvents } = require('./socketEvents');
 
-const socketMethods = async ({ data = {}, socket, envsId, method } = {}) => {
-  if (socketEvents[method]) {
-    await socketEvents[method]({ data, socket, envsIdIn: envsId, method });
-  } else {
-    throw { message: `Can't find method: ${method} in socket server` };
-  }
-};
-
 const createSocketServer = ({ host = '127.0.0.1', port = 3001 } = {}) => {
   const wss = new WebSocket.Server({ host, port });
 
@@ -28,7 +20,16 @@ const createSocketServer = ({ host = '127.0.0.1', port = 3001 } = {}) => {
       try {
         const incomeData = JSON.parse(event.data);
         const { envsId, data, method } = incomeData;
-        await socketMethods({ envsId, data, method, socket: this });
+        if (socketEvents[method]) {
+          await socketEvents[method]({ data, socket: this, envsId, method });
+        } else {
+          const availableMethods = Object.keys(socketEvents);
+          this.sendYAML({
+            data: { message: `Can't find method: "${method}" in socket server. Available methods: ${JSON.stringify(availableMethods)}` },
+            type: 'error',
+            envsId,
+          });
+        }
       } catch (err) {
         console.log(err);
         debugger;
