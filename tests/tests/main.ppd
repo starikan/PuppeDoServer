@@ -12,12 +12,13 @@ beforeTest:
 runTest:
   - goTo:
       bD: { url: wikiUrl }
-  - waitTime:
-      d: { time: 2000 }
-  - todo:
-      description: Make awesome test
-  - subTest:
-  - blank:
+  - cdpGetSelector:
+  # - waitTime:
+  #     d: { time: 2000 }
+  # - todo:
+  #     description: Make awesome test
+  # - subTest:
+  # - blank:
 
 ---
 name: calimba
