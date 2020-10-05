@@ -27,7 +27,7 @@ const socketEvents = {
     let envs;
     ({ envsId, envs } = await new ppd.Environment({ envsId, socket }));
     await envs.init();
-    socket.sendYAML({ data: {  }, type: method, envsId });
+    socket.sendYAML({ data: {}, type: method, envsId });
   }),
   setCurrentTest: socketFabric(async ({ socket, data, envsId, method }) => {
     let envs;
@@ -37,7 +37,7 @@ const socketEvents = {
     envs.set('current.test', testName);
     envs.initOutput();
 
-    socket.sendYAML({ data: {  }, type: method, envsId });
+    socket.sendYAML({ data: {}, type: method, envsId });
   }),
   runCurrentTest: socketFabric(async ({ socket, data, envsId, method }) => {
     const { fullJSON } = ppd.getFullDepthJSON({ envsId });
@@ -47,7 +47,7 @@ const socketEvents = {
     let test = ppd.getTest(fullJSON, envsId, socket);
     await test();
 
-    socket.sendYAML({ data: {  }, type: method, envsId });
+    socket.sendYAML({ data: {}, type: method, envsId });
   }),
 };
 

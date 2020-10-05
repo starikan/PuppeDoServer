@@ -8,9 +8,7 @@
       "type": "node",
       "request": "launch",
       "name": "Run Server",
-      "skipFiles": [
-        "<node_internals>/**"
-      ],
+      "skipFiles": ["<node_internals>/**"],
       "program": "${workspaceFolder}\\index.js"
     }
   ]

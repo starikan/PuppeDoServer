@@ -1,4 +1,3 @@
-const _ = require('lodash');
 const yaml = require('js-yaml');
 const WebSocket = require('ws');
 
@@ -8,15 +7,15 @@ const { socketEvents } = require('./socketEvents');
 const createSocketServer = ({ host = '127.0.0.1', port = 3001 } = {}) => {
   const wss = new WebSocket.Server({ host, port });
 
-  console.log(wss);
-  wss.on('connection', ws => {
+  // console.log(wss);
+  wss.on('connection', (ws) => {
     console.log(ws);
     ws.id = getUniqueID();
-    ws.sendYAML = function(data) {
+    ws.sendYAML = function (data) {
       return this.send.call(this, yaml.safeDump(data, { lineWidth: 1000, indent: 2, skipInvalid: true }));
     };
 
-    ws.onmessage = async function(event) {
+    ws.onmessage = async function (event) {
       try {
         const incomeData = JSON.parse(event.data);
         const { envsId, data, method } = incomeData;
@@ -40,7 +39,7 @@ const createSocketServer = ({ host = '127.0.0.1', port = 3001 } = {}) => {
         //TODO: 2019-06-11 S.Starodubov todo
       }
     };
-    ws.onclose = e => {
+    ws.onclose = () => {
       console.log('Close');
     };
     ws.onerror = () => {
