@@ -1,4 +1,4 @@
-const { createSocketServer } = require('./socketMethods');
+const { createSocketServer } = require('./socketServer');
 
 if (!module.parent) {
   require('@puppedo/atoms');
